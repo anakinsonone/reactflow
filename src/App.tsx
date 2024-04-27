@@ -1,43 +1,120 @@
-import type { OnConnect } from "reactflow";
-
-import { useCallback } from "react";
-import {
+import { DragEvent, useCallback, useRef, useState } from "react";
+import ReactFlow, {
   Background,
   Controls,
+  Edge,
+  MarkerType,
   MiniMap,
-  ReactFlow,
+  Node,
+  Panel,
+  ReactFlowProvider,
   addEdge,
-  useNodesState,
   useEdgesState,
+  useNodesState,
 } from "reactflow";
-
 import "reactflow/dist/style.css";
 
-import { initialNodes, nodeTypes } from "./nodes";
-import { initialEdges, edgeTypes } from "./edges";
+import axios from "axios";
+import Modal from "./components/Modal";
+import Sidebar from "./components/Sidebar";
 
-export default function App() {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges]
+let id = 0;
+const getId = () => `dndnode_${id++}`;
+
+const DNDFlow = () => {
+  const reactFlowWrapper = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [showPortal, setShowPortal] = useState(false);
+
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            markerEnd: {
+              type: MarkerType.Arrow,
+            },
+          },
+          eds,
+        ),
+      ),
+    [],
   );
+
+  const onDragOver = useCallback((event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: DragEvent) => {
+      event.preventDefault();
+      const type = event.dataTransfer.getData("application/reactflow");
+
+      if (typeof type === "undefined" || !type) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const newNode = {
+        id: getId(),
+        type,
+        position,
+        data: { label: `${type}` },
+      };
+
+      setNodes((nodes) => nodes.concat(newNode));
+    },
+    [reactFlowInstance],
+  );
+
+  const onSave = useCallback(() => {
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      axios
+        .post("http://localhost:8000/api/workflows", { flow })
+        .then((res) => console.log(res.data));
+    }
+  }, [reactFlowInstance]);
+
+  const hidePortal = () => {
+    setShowPortal(!showPortal);
+  };
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      edges={edges}
-      edgeTypes={edgeTypes}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      fitView
-    >
-      <Background />
-      <MiniMap />
-      <Controls />
-    </ReactFlow>
+    <div className="dndflow">
+      <ReactFlowProvider>
+        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onInit={setReactFlowInstance}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            fitView
+          >
+            <Controls />
+            <MiniMap />
+            <Background />
+            <Panel position="top-right" style={{ display: "flex", gap: 10 }}>
+              <button onClick={onSave}>Save Workflow</button>
+              <button onClick={() => setShowPortal(true)}>Run Workflow</button>
+            </Panel>
+          </ReactFlow>
+        </div>
+        <Sidebar />
+      </ReactFlowProvider>
+      <Modal showPortal={showPortal} hidePortal={hidePortal} />
+    </div>
   );
-}
+};
+
+export default DNDFlow;
