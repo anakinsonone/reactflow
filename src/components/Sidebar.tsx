@@ -37,7 +37,7 @@ const Sidebar = () => {
       </div>
       <div
         className="dndnode"
-        onDragStart={(event) => onDragStart(event, "Sent POST Request")}
+        onDragStart={(event) => onDragStart(event, "Send POST Request")}
         draggable
       >
         Send POST Request
