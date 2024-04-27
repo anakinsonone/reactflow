@@ -78,8 +78,8 @@ const App = () => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       axios
-        .post("http://localhost:8000/api/workflows", { flow })
-        .then((res) => console.log(res.data));
+        .post("https://reactflow-backend.onrender.com/api/workflows", { flow })
+        .then((res) => toast.success("Saved Workflow!"));
     }
   }, [reactFlowInstance]);
 
@@ -123,6 +123,7 @@ const App = () => {
         showPortal={showPortal}
         hidePortal={hidePortal}
       />
+      <Toaster />
     </div>
   );
 };

@@ -21,10 +21,12 @@ const FilterDataPortal = ({
   };
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/workflows").then((res) => {
-      setWorkflows(res.data);
-      setSelectedWorkflow(res.data[0]);
-    });
+    axios
+      .get("https://reactflow-backend.onrender.com/api/workflows")
+      .then((res) => {
+        setWorkflows(res.data);
+        setSelectedWorkflow(res.data[0]);
+      });
   }, []);
 
   const runWorkflow = () => {
@@ -34,11 +36,15 @@ const FilterDataPortal = ({
     formData.append("id", selectedWorkflow);
     formData.append("file", selectedFile);
     axios
-      .post("http://localhost:8000/api/workflows/run", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      .post(
+        "https://reactflow-backend.onrender.com/api/workflows/run",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      })
+      )
       .then((res) => {
         console.log(res.data);
         hidePortal();
