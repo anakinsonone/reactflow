@@ -17,6 +17,7 @@ import "reactflow/dist/style.css";
 import axios from "axios";
 import Modal from "./components/Modal";
 import Sidebar from "./components/Sidebar";
+import toast, { Toaster } from "react-hot-toast";
 
 let id = 0;
 const getId = () => `dndnode_${id++}`;
@@ -86,9 +87,14 @@ const DNDFlow = () => {
     setShowPortal(!showPortal);
   };
 
+  const successToast = () => {
+    toast.success("Workflow Executed!", { duration: 4000 });
+  };
+
   return (
     <div className="dndflow">
       <ReactFlowProvider>
+        <Toaster />
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
@@ -112,7 +118,11 @@ const DNDFlow = () => {
         </div>
         <Sidebar />
       </ReactFlowProvider>
-      <Modal showPortal={showPortal} hidePortal={hidePortal} />
+      <Modal
+        successToast={successToast}
+        showPortal={showPortal}
+        hidePortal={hidePortal}
+      />
     </div>
   );
 };

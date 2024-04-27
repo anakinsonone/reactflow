@@ -3,9 +3,11 @@ import "./style.css";
 import axios from "axios";
 
 const FilterDataPortal = ({
+  successToast,
   showPortal,
   hidePortal,
 }: {
+  successToast: () => void;
   showPortal: boolean;
   hidePortal: () => void;
 }) => {
@@ -37,7 +39,11 @@ const FilterDataPortal = ({
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((res) => console.log(res.data))
+      .then((res) => {
+        console.log(res.data);
+        hidePortal();
+        successToast();
+      })
       .catch((err) => console.log(err));
   };
 
