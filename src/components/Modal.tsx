@@ -15,11 +15,13 @@ const FilterDataPortal = ({
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState(null);
 
+  // function to save the current selected file to state
   const handleFileChange = (event) => {
     console.log(event.target.files);
     setSelectedFile(event.target.files[0]);
   };
 
+  // useEffect for fetching already stored workflows
   useEffect(() => {
     axios
       .get("https://reactflow-backend.onrender.com/api/workflows")
@@ -29,6 +31,7 @@ const FilterDataPortal = ({
       });
   }, []);
 
+  // api call for executing a selected workflow
   const runWorkflow = () => {
     console.log(selectedFile);
     console.log(selectedWorkflow);

@@ -1,4 +1,4 @@
-import { DragEvent, useCallback, useRef, useState } from "react";
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -29,6 +29,7 @@ const App = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [showPortal, setShowPortal] = useState(false);
 
+  // Function that connects edges to nodes
   const onConnect = useCallback(
     (params) =>
       setEdges((eds) =>
@@ -45,6 +46,7 @@ const App = () => {
     [],
   );
 
+  // below functions are used for handling drag and drop functionality
   const onDragOver = useCallback((event: DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -74,6 +76,7 @@ const App = () => {
     [reactFlowInstance],
   );
 
+  // function to save the current workflow
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
@@ -83,10 +86,12 @@ const App = () => {
     }
   }, [reactFlowInstance]);
 
+  // hide/unhide the portal
   const hidePortal = () => {
     setShowPortal(!showPortal);
   };
 
+  // display toast on succesful workflow execution
   const successToast = () => {
     toast.success("Workflow Executed!", { duration: 4000 });
   };
