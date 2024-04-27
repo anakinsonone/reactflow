@@ -22,7 +22,7 @@ import toast, { Toaster } from "react-hot-toast";
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
-const DNDFlow = () => {
+const App = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
@@ -127,4 +127,4 @@ const DNDFlow = () => {
   );
 };
 
-export default DNDFlow;
+export default App;
